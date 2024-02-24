@@ -1,3 +1,4 @@
+// Run server by command: node server.js
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -9,7 +10,14 @@ const store = {};
 
 // Generate a unique ID
 function generateUniqueId() {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  // Generate a random component
+  const randomPart = Math.random().toString(36).substring(2, 10);
+
+  // Get the current timestamp
+  const timestamp = Date.now().toString(36);
+
+  // Concatenate timestamp and random part
+  return timestamp + randomPart;
 }
 
 // Endpoint to create a new random selection
