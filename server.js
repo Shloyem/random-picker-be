@@ -28,6 +28,8 @@ app.post('/create', (req, res) => {
   store[id] = {
     options,
     result: null,
+    createdAt: new Date().getTime(),
+    drawTime: new Date(0),
     expiresAt: new Date().getTime() + 24 * 60 * 60 * 1000 //  24 hours from now
   };
   res.json({ id });
@@ -49,10 +51,11 @@ app.get('/result/:id', (req, res) => {
   if (!entry.result) {
     // Generate a random result
     entry.result = entry.options[Math.floor(Math.random() * entry.options.length)];
+    drawTime = new Date().getTime();
   }
 
   console.log("entry.result: ", entry.result);
-  res.json({ result: entry.result });
+  res.json(entry);
 });
 
 // Start the server
