@@ -39,24 +39,34 @@ app.post('/create', (req, res) => {
 app.get('/result/:id', (req, res) => {
   const { id } = req.params;
   const entry = store[id];
+
   if (!entry) {
     console.log('Returned 404 Not found');
     return res.status(404).send('Not found');
   }
+
   if (new Date().getTime() > entry.expiresAt) {
     delete store[id];
     console.log(`Deleted id ${id} after expired`);
     return res.status(404).send('Link expired');
   }
-  if (!entry.result) {
-    // Generate a random result
-    entry.result = entry.options[Math.floor(Math.random() * entry.options.length)];
-    entry.drawAt = new Date().getTime();
-  }
+
+  generateResult(entry);
 
   console.log("entry.result: ", entry.result);
   res.json(entry);
 });
+
+// Todo : check about async
+async function generateResult(entry) {
+  if (!entry.result) {
+    // Generate a random result
+    console.log("No result yet");
+    entry.result = entry.options[Math.floor(Math.random() * entry.options.length)];
+    console.log("generated result: ", entry.result);
+    entry.drawAt = new Date().getTime();
+  }
+}
 
 // Start the server
 const PORT = process.env.PORT || 3001;
