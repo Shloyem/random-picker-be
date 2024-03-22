@@ -36,7 +36,7 @@ app.post('/create', (req, res) => {
 });
 
 // Endpoint to get the result
-app.get('/result/:id', (req, res) => {
+app.get('/result/:id', async (req, res) => {
   const { id } = req.params;
   const entry = store[id];
 
@@ -51,16 +51,14 @@ app.get('/result/:id', (req, res) => {
     return res.status(404).send('Link expired');
   }
 
-  generateResult(entry);
+  await generateResult(entry);
 
   console.log("entry.result: ", entry.result);
   res.json(entry);
 });
 
-// Todo : check about async
 async function generateResult(entry) {
   if (!entry.result) {
-    // Generate a random result
     console.log("No result yet");
     entry.result = entry.options[Math.floor(Math.random() * entry.options.length)];
     console.log("generated result: ", entry.result);
