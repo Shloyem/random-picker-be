@@ -51,7 +51,12 @@ app.get('/result/:id', async (req, res) => {
     return res.status(404).send('Link expired');
   }
 
-  await generateResult(entry);
+  try {
+    await generateResult(entry);
+  } catch (error) {
+    console.error('Error generating result:', error);
+    return res.status(500).send('Internal server error');
+  }
 
   console.log("entry.result: ", entry.result);
   res.json(entry);
