@@ -51,6 +51,26 @@ app.get('/result/:id', async (req, res) => {
     return res.status(404).send('Link expired');
   }
 
+  console.log("entry returned from GET: ", { entry });
+  res.json(entry);
+});
+
+// Endpoint to update the result
+app.put('/result/:id', async (req, res) => {
+  const { id } = req.params;
+  const entry = store[id];
+
+  if (!entry) {
+    console.log('Returned 404 Not found');
+    return res.status(404).send('Not found');
+  }
+
+  if (new Date().getTime() > entry.expiresAt) {
+    delete store[id];
+    console.log(`Deleted id ${id} after expired`);
+    return res.status(404).send('Link expired');
+  }
+
   try {
     await generateResult(entry);
   } catch (error) {
@@ -58,7 +78,7 @@ app.get('/result/:id', async (req, res) => {
     return res.status(500).send('Internal server error');
   }
 
-  console.log("entry.result: ", entry.result);
+  console.log("entry returned from PUT: ", { entry });
   res.json(entry);
 });
 
