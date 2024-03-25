@@ -36,41 +36,13 @@ app.post('/create', (req, res) => {
 });
 
 // Endpoint to get the result
-app.get('/result/:id', async (req, res) => {
-  const { id } = req.params;
-  const entry = store[id];
-
-  if (!entry) {
-    console.log('Returned 404 Not found');
-    return res.status(404).send('Not found');
-  }
-
-  if (new Date().getTime() > entry.expiresAt) {
-    delete store[id];
-    console.log(`Deleted id ${id} after expired`);
-    return res.status(404).send('Link expired');
-  }
-
+app.get('/result/:id', checkEntryAndExpiry, async (req, res) => {
   console.log("entry returned from GET: ", { entry });
   res.json(entry);
 });
 
 // Endpoint to update the result
-app.put('/result/:id', async (req, res) => {
-  const { id } = req.params;
-  const entry = store[id];
-
-  if (!entry) {
-    console.log('Returned 404 Not found');
-    return res.status(404).send('Not found');
-  }
-
-  if (new Date().getTime() > entry.expiresAt) {
-    delete store[id];
-    console.log(`Deleted id ${id} after expired`);
-    return res.status(404).send('Link expired');
-  }
-
+app.put('/result/:id', checkEntryAndExpiry, async (req, res) => {
   try {
     await generateResult(entry);
   } catch (error) {
@@ -81,6 +53,25 @@ app.put('/result/:id', async (req, res) => {
   console.log("entry returned from PUT: ", { entry });
   res.json(entry);
 });
+
+function checkEntryAndExpiry(req, res, next) {
+  const { id } = req.params;
+  const entry = store[id];
+
+  if (!entry) {
+    console.log('Returned 404 Not found');
+    return res.status(404).send('Not found');
+  }
+
+  if (new Date().getTime() > entry.expiresAt) {
+    delete store[id];
+    console.log(`Deleted id ${id} after expired`);
+    return res.status(404).send('Link expired');
+  }
+
+  // If the checks pass, call the next middleware
+  next();
+}
 
 async function generateResult(entry) {
   if (!entry.result) {
