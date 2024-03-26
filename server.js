@@ -37,21 +37,21 @@ app.post('/create', (req, res) => {
 
 // Endpoint to get the result
 app.get('/result/:id', checkEntryAndExpiry, async (req, res) => {
-  console.log("entry returned from GET: ", { entry });
-  res.json(entry);
+  console.log("entry returned from GET: ", { entry: req.entry });
+  res.json(req.entry);
 });
 
 // Endpoint to update the result
 app.put('/result/:id', checkEntryAndExpiry, async (req, res) => {
   try {
-    await generateResult(entry);
+    await generateResult(req.entry);
   } catch (error) {
     console.error('Error generating result:', error);
     return res.status(500).send('Internal server error');
   }
 
-  console.log("entry returned from PUT: ", { entry });
-  res.json(entry);
+  console.log("entry returned from PUT: ", { entry: req.entry });
+  res.json(req.entry);
 });
 
 function checkEntryAndExpiry(req, res, next) {
@@ -68,6 +68,9 @@ function checkEntryAndExpiry(req, res, next) {
     console.log(`Deleted id ${id} after expired`);
     return res.status(404).send('Link expired');
   }
+
+  // Attach the entry object to the req object
+  req.entry = entry;
 
   // If the checks pass, call the next middleware
   next();
